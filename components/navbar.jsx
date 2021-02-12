@@ -89,7 +89,7 @@ function NavItem({ children, isLast, to = "/", ...rest }) {
 const NavTitle = (props) => {
   return (
     <Box boxSize="40px" {...props}>
-      <Image boxSize="40px" src="/images/FoxInTheBox.png" />
+      <Image boxSize="40px" src="/images/FoxInTheBox40p.png" />
     </Box>
   );
 };
