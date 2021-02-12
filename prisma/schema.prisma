@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                   Int       @id @default(autoincrement())
+  compound_id          String    @unique
+  user                 User      @relation(fields: [user_id], references: [id])
+  user_id              Int
+  provider_type        String
+  provider_id          String
+  provider_account_id  String
+  refresh_token        String?
+  access_token         String?
+  access_token_expires DateTime?
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @default(now())
+
+
+  @@index([provider_account_id], name: "provider_account_id")
+  @@index([provider_id], name: "provider_id")
+  @@index([user_id], name: "user_id")
+  @@map("accounts")
+}
+
+model Sessions {
+  id            Int      @id @default(autoincrement())
+  user          User     @relation(fields: [user_id], references: [id])
+  user_id       Int
+  expires       DateTime
+  session_token String   @unique
+  access_token  String   @unique
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now())
+
+  @@map("sessions")
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  name           String?
+  email          String?   @unique
+  email_verified DateTime?
+  image          String?
+
+  challenges Challenge[] @relation("creatorRelation")
+  bloods     Challenge[] @relation("firstBloodRelation")
+  solves     Challenge[] @relation("solvesRelation")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  Account  Account[]
+  Sessions Sessions[]
+  @@map("users")
+}
+
+model verification_requests {
+  id         Int      @id @default(autoincrement())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+}
+
+model Challenge {
+  id               Int      @id @default(autoincrement())
+  name             String
+  creator          User     @relation("creatorRelation", fields: [creatorID], references: [id])
+  creatorID        Int
+  file             String
+  flag             String
+  // stats
+  firstBlood       User     @relation("firstBloodRelation", fields: [firstBloodUserId], references: [id])
+  firstBloodUserId Int
+  solves           User[]   @relation("solvesRelation")
+  //
+  createdAt        DateTime @default(now())
+}
