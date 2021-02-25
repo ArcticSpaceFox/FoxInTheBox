@@ -1,16 +1,23 @@
 import { Box, Button, Fade, Flex, Heading, Link, LinkBox, Stack, Text } from "@chakra-ui/react";
 import Navbar from "../components/navbar";
-import { Link as ReachLink } from 'next/link';
 import { useEffect, useState } from 'react';
 
-import { signIn, signOut, useSession } from 'next-auth/client';
+import { session, signIn, signOut, useSession } from 'next-auth/client';
+import { useRouter } from 'next/router';
+
+console.log(process.env.DATABASE_URL);
 
 export default function Home() {
+  const router = useRouter();
   const [fadeTrigger, setFadeTrigger] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setFadeTrigger(true), 600)
   }, [])
+
+  const handleClick = () => {
+    router.push('/box/show');
+  }
 
   return (
     <Box w='full'>
@@ -28,7 +35,7 @@ export default function Home() {
             <Fade in={fadeTrigger}>
               <Text fontSize='2xl'>Cool riddles and fun challenges</Text>
 
-              <Button mt={6} onClick={signIn} colorScheme='blue'>START NOW</Button>
+              <Button mt={6} onClick={session ? handleClick : signIn} colorScheme='blue'>START NOW</Button>
             </Fade>
           </Box>
         </Flex>

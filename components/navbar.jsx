@@ -3,27 +3,21 @@ import {
   Text,
   Flex,
   Image,
-  Heading,
   IconButton,
   Link,
   useColorMode,
   Stack,
   ButtonGroup,
-  HStack,
   Button,
 } from "@chakra-ui/react";
 import { CloseIcon, MoonIcon, SunIcon, HamburgerIcon } from "@chakra-ui/icons";
-import { useState, useEffect, Suspense } from "react";
+import { useState } from "react";
 
 import { Link as ReachLink } from "next/link";
-import { signOut, useSession } from "next-auth/client";
+import { signOut, signIn, useSession } from "next-auth/client";
 
 function Navbar(props) {
   const [isOpenMenu, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    console.log("is Open status:", isOpenMenu);
-  }, [isOpenMenu]);
 
   return (
     <Flex
@@ -50,10 +44,7 @@ function Navbar(props) {
           direction={["column", "row", "row", "row"]}
           pt={[4, 4, 0, 0]}
         >
-          <NavItem to="/">Home</NavItem>
-          <NavItem to="/about">About</NavItem>
-          <NavItem to="/login">LogIn</NavItem>
-          <NavItem to="/signup">SignUp</NavItem>
+          <NavItem to="/home">Home</NavItem>
         </Stack>
       </Box>
       <ButtonGroup>
@@ -67,11 +58,10 @@ function Navbar(props) {
 
 const SignOutButton = () => {
   const [session] = useSession();
-  if (!session) return <Box/>;
 
   return (
-    <Button onClick={signOut}>
-      <Text fontWeight="bold">Sign Out</Text>
+    <Button onClick={session ? signOut : signIn}>
+      <Text fontWeight="bold">Sign {session ? "Out" : "In"}</Text>
     </Button>
   );
 };
