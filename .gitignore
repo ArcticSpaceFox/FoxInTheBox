@@ -12,6 +12,10 @@
 /.next/
 /out/
 
+# nvim
+.nvim*
+plug.vim
+
 # production
 /build
 
