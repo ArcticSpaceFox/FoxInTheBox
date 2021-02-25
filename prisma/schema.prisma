@@ -8,78 +8,102 @@ datasource db {
 }
 
 model Account {
-  id                   Int       @id @default(autoincrement())
-  compound_id          String    @unique
-  user                 User      @relation(fields: [user_id], references: [id])
-  user_id              Int
-  provider_type        String
-  provider_id          String
-  provider_account_id  String
-  refresh_token        String?
-  access_token         String?
-  access_token_expires DateTime?
-  created_at           DateTime  @default(now())
-  updated_at           DateTime  @default(now())
+  id                 Int       @id @default(autoincrement())
+  compoundId         String    @unique @map(name: "compound_id")
+  user               User      @relation(fields: [userId], references: [id])
+  userId             Int       @map(name: "user_id")
+  providerType       String    @map(name: "provider_type")
+  providerId         String    @map(name: "provider_id")
+  providerAccountId  String    @map(name: "provider_account_id")
+  refreshToken       String?   @map(name: "refresh_token")
+  accessToken        String?   @map(name: "access_token")
+  accessTokenExpires DateTime? @map(name: "access_token_expires")
+  createdAt          DateTime  @default(now()) @map(name: "created_at")
+  updatedAt          DateTime  @default(now()) @map(name: "updated_at")
 
 
-  @@index([provider_account_id], name: "provider_account_id")
-  @@index([provider_id], name: "provider_id")
-  @@index([user_id], name: "user_id")
-  @@map("accounts")
+  @@index([providerAccountId], name: "providerAccountId")
+  @@index([providerId], name: "providerId")
+  @@index([userId], name: "userId")
+  @@map(name: "accounts")
 }
 
-model Sessions {
-  id            Int      @id @default(autoincrement())
-  user          User     @relation(fields: [user_id], references: [id])
-  user_id       Int
-  expires       DateTime
-  session_token String   @unique
-  access_token  String   @unique
-  created_at    DateTime @default(now())
-  updated_at    DateTime @default(now())
+model Session {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map(name: "user_id")
+  expires      DateTime
+  sessionToken String   @unique @map(name: "session_token")
+  accessToken  String   @unique @map(name: "access_token")
+  createdAt    DateTime @default(now()) @map(name: "created_at")
+  updatedAt    DateTime @default(now()) @map(name: "updated_at")
 
-  @@map("sessions")
+  @@map(name: "sessions")
+}
+
+enum ROLE {
+  USER
+  MOD
+  ADMIN
 }
 
 model User {
-  id             Int       @id @default(autoincrement())
-  name           String?
-  email          String?   @unique
-  email_verified DateTime?
-  image          String?
+  id            Int         @id @default(autoincrement())
+  name          String?
+  role          ROLE        @default(USER)
+  email         String?     @unique
+  emailVerified DateTime?   @map(name: "email_verified")
+  image         String?
+  challenges    Challenge[] @relation("creatorRelation")
+  bloods        Challenge[] @relation("firstBloodRelation")
+  solves        Challenge[] @relation("solvesRelation")
+  createdAt     DateTime    @default(now()) @map(name: "created_at")
+  updatedAt     DateTime    @default(now()) @map(name: "updated_at")
 
-  challenges Challenge[] @relation("creatorRelation")
-  bloods     Challenge[] @relation("firstBloodRelation")
-  solves     Challenge[] @relation("solvesRelation")
-
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now())
-
-  Account  Account[]
-  Sessions Sessions[]
-  @@map("users")
+  Account Account[]
+  @@map(name: "users")
 }
 
-model verification_requests {
+model VerificationRequest {
   id         Int      @id @default(autoincrement())
   identifier String
   token      String   @unique
   expires    DateTime
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now())
+  createdAt  DateTime @default(now()) @map(name: "created_at")
+  updatedAt  DateTime @default(now()) @map(name: "updated_at")
+
+  @@map(name: "verification_requests")
+}
+
+model Competition {
+  id         Int         @id @default(autoincrement())
+  name       String
+  startTime  DateTime
+  endTime    DateTime
+  createdAt  DateTime    @default(now())
+  challenges Challenge[]
+
+  @@map("competitions")
 }
 
 model Challenge {
-  id               Int      @id @default(autoincrement())
+  id               Int          @id @default(autoincrement())
   name             String
-  creator          User     @relation("creatorRelation", fields: [creatorID], references: [id])
+  creator          User         @relation("creatorRelation", fields: [creatorID], references: [id])
   creatorID        Int
+  reviewed         Boolean      @default(false)
+  public           Boolean      @default(false)
+  // URL to file
   file             String
+  // URL to writeUp
+  writeUp          String
   flag             String
   // stats
-  firstBlood       User     @relation("firstBloodRelation", fields: [firstBloodUserId], references: [id])
-  firstBloodUserId Int
-  solves           User[]   @relation("solvesRelation")
-  //
-  createdAt        DateTime @default(now())
+  firstBlood       User?        @relation("firstBloodRelation", fields: [firstBloodUserId], references: [id])
+  firstBloodUserId Int?
+  solves           User[]       @relation("solvesRelation")
+  createdAt        DateTime     @default(now())
+  Competition      Competition? @relation(fields: [competitionId], references: [id])
+  competitionId    Int?
+
+  @@map("challenges")
 }
