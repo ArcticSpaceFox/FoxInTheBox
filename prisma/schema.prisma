@@ -47,20 +47,22 @@ enum ROLE {
 }
 
 model User {
-  id            Int         @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   name          String?
-  role          ROLE        @default(USER)
-  email         String?     @unique
-  emailVerified DateTime?   @map(name: "email_verified")
+  role          ROLE      @default(USER)
+  email         String?   @unique
+  emailVerified DateTime? @map(name: "email_verified")
   image         String?
-  challenges    Challenge[] @relation("creatorRelation")
-  bloods        Challenge[] @relation("firstBloodRelation")
-  solves        Challenge[] @relation("solvesRelation")
-  createdAt     DateTime    @default(now()) @map(name: "created_at")
-  updatedAt     DateTime    @default(now()) @map(name: "updated_at")
+  challenges    Box[]     @relation("creatorRelation")
+  bloods        Box[]     @relation("firstBloodRelation")
+  solves        Box[]     @relation("solvesRelation")
+  createdAt     DateTime  @default(now()) @map(name: "created_at")
+  updatedAt     DateTime  @default(now()) @map(name: "updated_at")
 
   Account Account[]
   @@map(name: "users")
+  Competition   Competition? @relation(fields: [competitionId], references: [id])
+  competitionId Int?
 }
 
 model VerificationRequest {
@@ -75,17 +77,18 @@ model VerificationRequest {
 }
 
 model Competition {
-  id         Int         @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   name       String
   startTime  DateTime
   endTime    DateTime
-  createdAt  DateTime    @default(now())
-  challenges Challenge[]
+  createdAt  DateTime @default(now())
+  challenges Box[]
+  editors    User[]
 
   @@map("competitions")
 }
 
-model Challenge {
+model Box {
   id               Int          @id @default(autoincrement())
   name             String
   creator          User         @relation("creatorRelation", fields: [creatorID], references: [id])
