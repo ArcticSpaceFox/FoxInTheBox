@@ -16,13 +16,12 @@ import {
   Spacer,
 } from '@chakra-ui/react'
 import { FiFolder, FiHash, FiFile, FiFlag, FiAward, FiX, FiCheckCircle } from "react-icons/fi";
-import Navbar from '../../components/navbar'
+import Navbar from '../../../components/navbar'
 
 import { useForm } from "react-hook-form";
 import { useSession, signIn } from 'next-auth/client';
 import { useRouter } from 'next/router';
 import { useColorMode } from '@chakra-ui/react';
-import { useEffect } from "react";
 
 const BoxPage = () => {
   const [session, loading] = useSession();

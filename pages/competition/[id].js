@@ -25,7 +25,7 @@ export async function getServerSideProps(context) {
     notFound: true,
   }
 
-  const compData = await prisma.challenge.findUnique({
+  const compData = await prisma.competition.findUnique({
     where: {
       id: id,
     },
