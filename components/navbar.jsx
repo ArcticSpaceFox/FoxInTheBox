@@ -2,6 +2,7 @@ import {
   Box,
   Text,
   Flex,
+  Icon,
   Image,
   IconButton,
   Link,
@@ -11,10 +12,12 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { CloseIcon, MoonIcon, SunIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { FiAward, FiBox, FiCpu } from "react-icons/fi";
 import { useState } from "react";
 
 import { Link as ReachLink } from "next/link";
 import { signOut, signIn, useSession } from "next-auth/client";
+import { useRouter } from 'next/router';
 
 function Navbar(props) {
   const [isOpenMenu, setIsOpen] = useState(false);
@@ -32,7 +35,9 @@ function Navbar(props) {
       borderColor="gray.200"
       {...props}
     >
-      <NavTitle />
+      <Box display={{ base: isOpenMenu ? "none" : "block", md: "none" }}>
+        <NavTitle />
+      </Box>
       <Box
         display={{ base: isOpenMenu ? "block" : "none", md: "block" }}
         flexBasis={{ base: "100%", md: "auto" }}
@@ -44,7 +49,16 @@ function Navbar(props) {
           direction={["column", "row", "row", "row"]}
           pt={[4, 4, 0, 0]}
         >
-          <NavItem to="/home">Home</NavItem>
+          <NavTitle />
+          <NavItem to="/user" secure={true} icon={<Icon as={FiCpu} />}>
+            Home
+          </NavItem>
+          <NavItem to="/competition" secure={true} icon={<Icon as={FiAward} />}>
+            Competitions
+          </NavItem>
+          <NavItem to="/box" secure={true} icon={<Icon as={FiBox} />}>
+            Boxes
+          </NavItem>
         </Stack>
       </Box>
       <ButtonGroup>
@@ -57,21 +71,33 @@ function Navbar(props) {
 }
 
 const SignOutButton = () => {
-  const [session] = useSession();
+  const [session, loading] = useSession();
 
   return (
-    <Button onClick={session ? signOut : signIn}>
+    <Button onClick={session ? signOut : signIn} isLoading={loading}>
       <Text fontWeight="bold">Sign {session ? "Out" : "In"}</Text>
     </Button>
   );
 };
 
-function NavItem({ children, isLast, to = "/", ...rest }) {
+function NavItem({ children, icon, isLast, secure = false, to = "/", ...rest }) {
+  const Router = useRouter();
+  if (secure) {
+    const [session] = useSession();
+    if (!session) return null;
+  }
+
   return (
     <Link as={ReachLink} href={to}>
-      <Text display="block" {...rest}>
-        {children}
-      </Text>
+      <Button
+        leftIcon={icon}
+
+        variant={Router.pathname === to ? "solid" : "outline"}
+      >
+        <Text display="block" {...rest}>
+          {children}
+        </Text>
+      </Button>
     </Link>
   );
 }
