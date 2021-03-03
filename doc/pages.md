@@ -12,6 +12,9 @@ thing they see is current competitions.
 - `/box/create`
   Page for creating new challenges
 
+- `/box/create/[id]`
+  Page for creating new challenges for a specific Competition
+
 
 ## Competition
 - `/competition`
