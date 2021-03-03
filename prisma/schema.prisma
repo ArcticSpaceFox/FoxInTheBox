@@ -42,27 +42,28 @@ model Session {
 
 enum ROLE {
   USER
+  CREATOR
   MOD
   ADMIN
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
+  id            Int          @id @default(autoincrement())
   name          String?
-  role          ROLE      @default(USER)
-  email         String?   @unique
-  emailVerified DateTime? @map(name: "email_verified")
+  role          ROLE         @default(USER)
+  email         String?      @unique
+  emailVerified DateTime?    @map(name: "email_verified")
   image         String?
-  challenges    Box[]     @relation("creatorRelation")
-  bloods        Box[]     @relation("firstBloodRelation")
-  solves        Box[]     @relation("solvesRelation")
-  createdAt     DateTime  @default(now()) @map(name: "created_at")
-  updatedAt     DateTime  @default(now()) @map(name: "updated_at")
-
-  Account Account[]
-  @@map(name: "users")
+  challenges    Box[]        @relation("creatorRelation")
+  bloods        Box[]        @relation("firstBloodRelation")
+  solves        Solve[]
+  createdAt     DateTime     @default(now()) @map(name: "created_at")
+  updatedAt     DateTime     @default(now()) @map(name: "updated_at")
+  Account       Account[]
   Competition   Competition? @relation(fields: [competitionId], references: [id])
   competitionId Int?
+
+  @@map(name: "users")
 }
 
 model VerificationRequest {
@@ -77,33 +78,70 @@ model VerificationRequest {
 }
 
 model Competition {
-  id         Int      @id @default(autoincrement())
-  name       String
-  startTime  DateTime
-  endTime    DateTime
-  createdAt  DateTime @default(now())
-  challenges Box[]
-  editors    User[]
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String
+  prizes      Int      @default(0)
+  sponsors    String[]
+  startTime   DateTime
+  endTime     DateTime
+  createdAt   DateTime @default(now())
+  challenges  Box[]
+  editors     User[]
 
   @@map("competitions")
 }
 
+// [Category] holds info about box category
+enum Category {
+  CRYPTO
+  MISC
+  REVERSING
+  FORENSICS
+  PWNING
+  WEB
+  CODING
+  MYSTERY
+}
+
+// [Difficulty] will show how hard a challenge is and determine points for challenge
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  EXPERT
+}
+
+// [Solve] saves a solve for a box
+model Solve {
+  id        Int      @id @default(autoincrement())
+  isBlood   Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  Box       Box?     @relation(fields: [boxId], references: [id])
+  boxId     Int?
+  points    Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+// [Box] holds all info on a certain box
 model Box {
   id               Int          @id @default(autoincrement())
-  name             String
+  name             String       @unique
+  description      String?
   creator          User         @relation("creatorRelation", fields: [creatorID], references: [id])
   creatorID        Int
   reviewed         Boolean      @default(false)
   public           Boolean      @default(false)
-  // URL to file
+  difficulty       Difficulty
+  category         Category     @default(MYSTERY)
   file             String
-  // URL to writeUp
   writeUp          String
+  // flag in hash format so db dump will not reveil soloution
   flag             String
   // stats
   firstBlood       User?        @relation("firstBloodRelation", fields: [firstBloodUserId], references: [id])
   firstBloodUserId Int?
-  solves           User[]       @relation("solvesRelation")
+  solves           Solve[]
   createdAt        DateTime     @default(now())
   Competition      Competition? @relation(fields: [competitionId], references: [id])
   competitionId    Int?
