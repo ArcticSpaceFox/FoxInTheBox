@@ -16,7 +16,7 @@ export default function Home() {
   }, [])
 
   const handleClick = () => {
-    router.push('/box/show');
+    router.push('/competition');
   }
 
   return (

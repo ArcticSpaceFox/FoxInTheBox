@@ -1,15 +1,15 @@
 import Navbar from "../../components/navbar";
-import { Box, Divider, Flex, Heading, Spinner, Text, Spacer, Badge, Image } from "@chakra-ui/react";
+import { Box, Divider, Flex, Heading, useColorMode, Text, Spacer, Badge, Image } from "@chakra-ui/react";
 
 import { getSession } from 'next-auth/client';
-import { PrismaClient } from '@prisma/client';
+import prisma from "../../lib/prisma";
 
 /*
     For dynamic data on every request
 */
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  
+
   if (!session) return {
     props: {
       authError: true,
@@ -18,8 +18,6 @@ export async function getServerSideProps(context) {
       destination: '/'
     }
   }
-
-  const prisma = new PrismaClient();
 
   const userData = await prisma.user.findUnique({
     where: {
@@ -49,45 +47,65 @@ export async function getServerSideProps(context) {
 /*
     Home Page
 */
-export default function Home({userData, notFound, authError}) {
+export default function Home({ userData, notFound, authError }) {
   return (
     <Box h='100vh'>
       <Box>
         <Navbar />
       </Box>
-      <HomePageContent userData={userData}/>}
+      <HomePageContent userData={userData} />
     </Box>
   )
 }
 
 // Content, will be loaded and then rendered
-const HomePageContent = ({userData}) => {
+const HomePageContent = ({ userData }) => {
+  const { colorMode } = useColorMode();
+
   return (
     <Flex minH='100%'>
       <Box m={6} w='full'>
-        <Flex w='full'>
-          <Heading>Welcome home, {userData.name || "Anon"} </Heading>
-          <Spacer/>
-          <Box>
-            <Badge variant='subtle' colorScheme={userData.role === 'ADMIN' ? 'green' : 'blue'}>{userData.role}</Badge>
+        <Box>
+          <Flex w='full'>
+            <Heading>Welcome home, {userData.name || "Anon"} </Heading>
+            <Spacer />
+            <Box>
+              <Badge
+                variant='subtle'
+                colorScheme={userData.role === 'ADMIN' ? 'green' : 'blue'}
+              >
+                {userData.role}
+              </Badge>
+            </Box>
+          </Flex>
+          <Divider />
+        </Box>
+        <Flex mt={6} w='full' minH='60%' justifyContent='center'>
+          <Box
+            minW='65%'
+            p={4}
+            border='1px'
+            borderColor={colorMode === 'light' ? 'gray.200' : 'gray.700'}
+            boxShadow='xl'
+            borderRadius={6}
+            minH={12}
+          >
+            <Flex>
+              <HomePageProfileStats userData={userData} />
+            </Flex>
           </Box>
-        </Flex>
-        <Divider />
-        <Flex mt={6} w='full'>
-          <Box minW='65%' pl={4} pt={2} pr={4} pb={2} border='1px' boxShadow='md' borderRadius={6} minH={12}>
-            <HomePageProfileStats userData={userData}/>
-          </Box>
-          <Spacer/>
-          <Box minW='30%' pl={4} pt={2} pr={4} pb={2} border='1px' boxShadow='md' borderRadius={6} minH={12}></Box>
         </Flex>
       </Box>
     </Flex>
   )
 };
 
-const HomePageProfileStats = ({userData}) => {
-  return(
-    <Image src={userData.image.replace('.gif','')}></Image>
+const HomePageProfileStats = ({ userData }) => {
+  return (
+    <Image
+      src={userData.image.replace('.gif', '')}
+      borderRadius="full"
+    />
   )
 }
 

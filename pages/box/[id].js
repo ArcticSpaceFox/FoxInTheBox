@@ -1,9 +1,9 @@
-import { Flex, Box, Heading, Spinner, Text, Code } from '@chakra-ui/react'
+import { Flex, Box, Heading, Code } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import Navbar from '../../components/navbar'
 
 import { getSession } from 'next-auth/client';
-import { PrismaClient } from '@prisma/client';
+import prisma from "../../lib/prisma";
 
 /*
     For dynamic data on every request
@@ -20,11 +20,14 @@ export async function getServerSideProps(context) {
     }
   }
 
-  const prisma = new PrismaClient();
+  const id = Number(context.params.id);
+  if (!id) return {
+    notFound: true,
+  }
 
-  const boxData = await prisma.challenge.findUnique({
+  const boxData = await prisma.box.findUnique({
     where: {
-      id: Number(context.params.id),
+      id: id,
     },
   })
 

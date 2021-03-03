@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import Navbar from '../../components/navbar'
 
 import { getSession } from 'next-auth/client';
-import { PrismaClient } from '@prisma/client';
+import prisma from "../../lib/prisma";
 
 /*
     For dynamic data on every request
@@ -20,27 +20,30 @@ export async function getServerSideProps(context) {
     }
   }
 
-  const prisma = new PrismaClient();
+  const id = Number(context.params.id);
+  if (!id) return {
+    notFound: true,
+  }
 
-  const boxData = await prisma.challenge.findUnique({
+  const compData = await prisma.challenge.findUnique({
     where: {
-      id: Number(context.params.id),
+      id: id,
     },
   })
 
-  if (!boxData) return {
+  if (!compData) return {
     props: {},
     notFound: true,
   }
 
   return {
     props: {
-      boxData: boxData
+      compData: compData
     }, // will be passed to the page component as props
   }
 }
 
-const CompetitionPage = () => {
+const CompetitionPage = ({compData}) => {
   const router = useRouter()
   const { id } = router.query
 
