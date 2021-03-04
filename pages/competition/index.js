@@ -1,4 +1,4 @@
-import { Stack, Code, Flex } from "@chakra-ui/react";
+import { Stack, Text, Flex } from "@chakra-ui/react";
 import Navbar from "../../components/navbar";
 
 import { getSession } from 'next-auth/client';
@@ -21,9 +21,16 @@ export async function getServerSideProps(context) {
     }
   }
 
-  const compData = await prisma.box.findMany({});
+  const compData = await prisma.competition.findMany({
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      prizes: true,
+    }
+  });
 
-  if (!compData) return {
+  if (!compData) return { 
     props: {},
     notFound: true,
   }
