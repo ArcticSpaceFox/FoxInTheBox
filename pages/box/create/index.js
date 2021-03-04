@@ -22,6 +22,7 @@ import { useForm } from "react-hook-form";
 import { useSession, signIn } from 'next-auth/client';
 import { useRouter } from 'next/router';
 import { useColorMode } from '@chakra-ui/react';
+import FileUpload from '../../../components/fileupload';
 
 const BoxPage = () => {
   const [session, loading] = useSession();
@@ -37,7 +38,6 @@ const BoxPage = () => {
       </Flex>
     </Box>
   );
-
   return (
     <Box>
       <Navbar />
@@ -53,7 +53,7 @@ const BoxPage = () => {
 }
 
 const BoxCreateForm = () => {
-  const { register, handleSubmit, control, formState, getValues, reset, errors, watch } = useForm();
+  const { register, handleSubmit, control, formState, reset, errors, watch } = useForm();
   const Router = useRouter();
 
   const files = watch("compFiles", "writeUpFile");
@@ -84,7 +84,9 @@ const BoxCreateForm = () => {
             <Input
               name="name"
               placeholder="My cool box name..."
-              ref={register({})}
+              ref={register({
+                min: 3,
+              })}
             />
           </InputGroup>
           <FormErrorMessage>
@@ -110,43 +112,13 @@ const BoxCreateForm = () => {
           </FormErrorMessage>
         </FormControl>
 
-        <FormControl isInvalid={errors.compFiles} isRequired>
-          <FormLabel htmlFor="compFiles">Competition Files as <Code>.zip</Code></FormLabel>
-          <InputGroup>
-            <InputLeftElement
-              pointerEvents="none"
-              children={<Icon as={FiFolder} />}
-            />
-            <input type='file' accept='.zip' name="compFiles" ref={register({})} style={{ display: 'none' }}></input>
-            <Input
-              placeholder="Your challenge files..."
-              onClick={() => control.fieldsRef.current.compFiles.ref.click()}
-              value={files && "test1"}
-            />
-          </InputGroup>
-          <FormErrorMessage>
-            {errors.compFiles && errors.compFiles.message}
-          </FormErrorMessage>
-        </FormControl>
+        <FileUpload name="compFiles" label="Your competition files..." acceptedFileTypes=".zip" control={control}>
+          The files for the box in a <Code>.zip</Code> format
+        </FileUpload>
 
-        <FormControl isInvalid={errors.writeUpFile} isRequired>
-          <FormLabel htmlFor="writeUpFile">A detailed writeup in the <Code>.md</Code> format</FormLabel>
-          <InputGroup>
-            <InputLeftElement
-              pointerEvents="none"
-              children={<Icon as={FiFile} />}
-            />
-            <input type='file' accept='.md' name="writeUpFile" ref={register({})} style={{ display: 'none' }}></input>
-            <Input
-              placeholder="Your writeup ..."
-              onClick={() => control.fieldsRef.current.writeUpFile.ref.click()}
-              value={files && "test2"}
-            />
-          </InputGroup>
-          <FormErrorMessage>
-            {errors.writeUpFile && errors.writeUpFile.message}
-          </FormErrorMessage>
-        </FormControl>
+        <FileUpload name="writeUpFile" label="Your writeup ..." acceptedFileTypes=".md" control={control}>
+          A detailed writeup in the <Code>.md</Code> format
+        </FileUpload>
 
         <FormControl isInvalid={errors.category}>
           <FormLabel htmlFor="category">The category of your challenge</FormLabel>
@@ -177,23 +149,6 @@ const BoxCreateForm = () => {
           </FormErrorMessage>
         </FormControl>
 
-        <FormControl isInvalid={errors.competition}>
-          <FormLabel htmlFor="competition">Does this challenge belong to a certain competition?</FormLabel>
-          <InputGroup>
-            <InputLeftElement
-              pointerEvents="none"
-              children={<Icon as={FiAward} />}
-            />
-            <Input
-              name="competition"
-              placeholder="What competition should we link this to?"
-              ref={register({})}
-            />
-          </InputGroup>
-          <FormErrorMessage>
-            {errors.competition && errors.competition.message}
-          </FormErrorMessage>
-        </FormControl>
       </Stack>
 
       <Divider mt={2} mb={2} />

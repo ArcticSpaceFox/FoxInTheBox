@@ -14,19 +14,17 @@ import {
   Text,
   Button,
   Spacer,
+  useColorMode,
 } from '@chakra-ui/react'
 import { FiFolder, FiHash, FiFile, FiFlag, FiAward, FiX, FiCheckCircle } from "react-icons/fi";
-import Navbar from '../../components/navbar'
+import Navbar from '../../../components/navbar'
+import FileUpload from "../../../components/fileupload";
 
+import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
-import { useColorMode } from '@chakra-ui/react';
-
-import { Flex, Box, Heading } from '@chakra-ui/react'
-import { useRouter } from 'next/router'
-import Navbar from '../../components/navbar'
-
-import { getSession } from 'next-auth/client';
+import { getSession, useSession } from 'next-auth/client';
 import prisma from "../../../lib/prisma";
+import { useEffect } from "react";
 
 /*
     For dynamic data on every request
@@ -54,7 +52,12 @@ export async function getServerSideProps(context) {
     },
     select: {
       id: true,
-      editors: true,
+      name: true,
+      editors: {
+        select: {
+          id: true,
+        }
+      },
     }
   })
 
@@ -63,7 +66,7 @@ export async function getServerSideProps(context) {
     notFound: true,
   }
 
-  if (!compData.editors.includes(id)) {
+  if (!compData.editors.map(e=>e.id).includes(id)) {
     return {
       props: {
         notEditor: true,
@@ -78,7 +81,7 @@ export async function getServerSideProps(context) {
   }
 }
 
-const BoxPage = () => {
+const BoxPage = ({ compData, notEditor }) => {
   const [session, loading] = useSession();
   const { colorMode } = useColorMode();
 
@@ -93,6 +96,15 @@ const BoxPage = () => {
     </Box>
   );
 
+  if (notEditor) return (
+    <Box>
+      <Navbar />
+      <Flex minH='80vh' align='center' justifyContent='center'>
+        <Text fontSize='2xl'>Not an editor for this competition</Text>
+      </Flex>
+    </Box>
+  );
+
   return (
     <Box>
       <Navbar />
@@ -100,23 +112,26 @@ const BoxPage = () => {
         <Box m={6} w='xl' shadow='2xl' border='1px' borderColor={colorMode === 'light' ? 'gray.200' : 'gray.700'} p={6} borderRadius={6}>
           <Heading>Create a new Box</Heading>
           <Divider mt={4} mb={4} />
-          <BoxCreateForm />
+          <BoxCreateForm comp={compData} />
         </Box>
       </Flex>
     </Box>
   )
 }
 
-const BoxCreateForm = () => {
-  const { register, handleSubmit, control, formState, getValues, reset, errors, watch } = useForm();
+const BoxCreateForm = ({ comp }) => {
+  const { register, handleSubmit, control, getValues, formState, setValue, reset, errors, watch } = useForm();
   const Router = useRouter();
 
-  const files = watch("compFiles", "writeUpFile");
+  useEffect(() => {
+    setValue('competition', comp.name);
+  }, [])
 
   function onSubmit(values) {
     return new Promise(resolve => {
       setTimeout(() => {
         alert(JSON.stringify(values, null, 2));
+        console.log(values);
         reset();
         Router.push('/user')
         resolve();
@@ -165,43 +180,13 @@ const BoxCreateForm = () => {
           </FormErrorMessage>
         </FormControl>
 
-        <FormControl isInvalid={errors.compFiles} isRequired>
-          <FormLabel htmlFor="compFiles">Competition Files as <Code>.zip</Code></FormLabel>
-          <InputGroup>
-            <InputLeftElement
-              pointerEvents="none"
-              children={<Icon as={FiFolder} />}
-            />
-            <input type='file' accept='.zip' name="compFiles" ref={register({})} style={{ display: 'none' }}></input>
-            <Input
-              placeholder="Your challenge files..."
-              onClick={() => control.fieldsRef.current.compFiles.ref.click()}
-              value={files && "test1"}
-            />
-          </InputGroup>
-          <FormErrorMessage>
-            {errors.compFiles && errors.compFiles.message}
-          </FormErrorMessage>
-        </FormControl>
+        <FileUpload name="compFiles" label="Your competition files..." acceptedFileTypes=".zip" control={control}>
+          The files for the box in a <Code>.zip</Code> format
+        </FileUpload>
 
-        <FormControl isInvalid={errors.writeUpFile} isRequired>
-          <FormLabel htmlFor="writeUpFile">A detailed writeup in the <Code>.md</Code> format</FormLabel>
-          <InputGroup>
-            <InputLeftElement
-              pointerEvents="none"
-              children={<Icon as={FiFile} />}
-            />
-            <input type='file' accept='.md' name="writeUpFile" ref={register({})} style={{ display: 'none' }}></input>
-            <Input
-              placeholder="Your writeup ..."
-              onClick={() => control.fieldsRef.current.writeUpFile.ref.click()}
-              value={files && "test2"}
-            />
-          </InputGroup>
-          <FormErrorMessage>
-            {errors.writeUpFile && errors.writeUpFile.message}
-          </FormErrorMessage>
-        </FormControl>
+        <FileUpload name="writeUpFile" label="Your writeup ..." acceptedFileTypes=".md" control={control}>
+          A detailed writeup in the <Code>.md</Code> format
+        </FileUpload>
 
         <FormControl isInvalid={errors.category}>
           <FormLabel htmlFor="category">The category of your challenge</FormLabel>
@@ -242,6 +227,7 @@ const BoxCreateForm = () => {
             <Input
               name="competition"
               placeholder="What competition should we link this to?"
+              disabled={true}
               ref={register({})}
             />
           </InputGroup>
