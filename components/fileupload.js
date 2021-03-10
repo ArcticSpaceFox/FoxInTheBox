@@ -6,7 +6,7 @@ import { useRef } from "react";
 const FileUpload = ({ name, label, acceptedFileTypes, control, children, isRequired=false }) => {
   const inputRef = useRef();
   const {
-    field: { ref, value, ...inputProps },
+    field: { ref, value, onChange, ...inputProps },
     meta: { invalid, isTouched, isDirty },
   } = useController({
     name,
@@ -22,7 +22,7 @@ const FileUpload = ({ name, label, acceptedFileTypes, control, children, isRequi
           pointerEvents="none"
           children={<Icon as={FiFile} />}
         />
-        <input type='file' accept={acceptedFileTypes} name={name} ref={inputRef} {...inputProps} inputRef={ref} style={{ display: 'none' }}></input>
+        <input type='file' accept={acceptedFileTypes} name={name} ref={inputRef} {...inputProps} inputRef={ref} onChange={(e) => onChange(e.target.files[0])} style={{ display: 'none' }}></input>
         <Input
           placeholder={label || "Your file ..."}
           onClick={() => inputRef.current.click()}
