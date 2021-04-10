@@ -12,7 +12,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { CloseIcon, MoonIcon, SunIcon, HamburgerIcon } from "@chakra-ui/icons";
-import { FiAward, FiBox, FiCpu } from "react-icons/fi";
+import { FiAward, FiBox, FiCpu, FiPackage } from "react-icons/fi";
 import { useState } from "react";
 
 import { Link as ReachLink } from "next/link";
