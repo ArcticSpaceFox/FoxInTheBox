@@ -50,9 +50,9 @@ function Navbar(props) {
           pt={[4, 4, 0, 0]}
         >
           <NavTitle />
-          <NavItem to="/user" secure={true} icon={<Icon as={FiCpu} />}>
+	  {/*<NavItem to="/user" secure={true} icon={<Icon as={FiCpu} />}>
             Home
-          </NavItem>
+          </NavItem>*/}
           <NavItem to="/competition" secure={true} icon={<Icon as={FiAward} />}>
             Competitions
           </NavItem>

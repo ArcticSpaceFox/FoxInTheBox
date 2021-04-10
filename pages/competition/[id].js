@@ -57,7 +57,7 @@ export async function getServerSideProps(context) {
 }
 
 const CompetitionPage = ({ compData }) => {
-  console.log(compData);
+  //console.log(compData);
   return (
     <Box>
       <Navbar />
@@ -82,7 +82,7 @@ const BoxTableView = ({ boxes }) => {
     </Flex>;
   }
 
-  console.log(boxes);
+  //console.log(boxes);
 
   return (
     <Box minW='4xl' shadow='lg' p={2} borderColor='gray' border='1px' borderRadius={6} overflow='hidden'>
