@@ -137,7 +137,7 @@ model Box {
   file             String
   writeUp          String
   // flag in hash format so db dump will not reveil soloution
-  flag             String
+  flag             String       
   // stats
   firstBlood       User?        @relation("firstBloodRelation", fields: [firstBloodUserId], references: [id])
   firstBloodUserId Int?
