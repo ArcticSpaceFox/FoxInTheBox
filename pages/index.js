@@ -34,8 +34,6 @@ export default function Home() {
             </Fade>
             <Fade in={fadeTrigger}>
               <Text fontSize='2xl'>Cool riddles and fun challenges</Text>
-
-              <Button mt={6} onClick={session ? handleClick : signIn('discord', {callbackUrl: 'https://fitb.ryzetech.live/competition'})} colorScheme='blue'>START NOW</Button>
             </Fade>
           </Box>
         </Flex>
